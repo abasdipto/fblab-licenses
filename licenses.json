@@ -1,0 +1,5 @@
+{
+  "payload": "{\"version\":1,\"licenses\":[{\"key\":\"TEST-1234-ABCD-EFGH\",\"hwid\":\"dummyHwidForBootstrap\",\"expires\":\"2027-05-02T11:54:07.349Z\",\"revoked\":false,\"note\":\"bootstrap\",\"addedAt\":\"2026-05-02T11:54:07.350Z\"}]}",
+  "signature": "fmXv5sdKtNJ7bfSvJKNntzaJ1+dmr1BFftD0+YChF4n9PEeMl9IP/8FsAyiINu8iwAA4bNvwE9noDz70bcylOuNDRcl/8GqOOx29k1P6ToWHb/lKCeUZa6JIZuaQU/ygV/ObjRXiu2TLHMCk6/neBG44Z08LDkpZjsK6Gsn3ErSLUqqqQu9fO5cV/JnBNYsfk3Pb0YMLjh63TVJm6ZWZfg6eTHAlCL3NF7cKDsB9vtvfbWnxUsK7f2T+tGLYNxUpdJ98Z2l/p0IyAIqfkNTWeq9vTF1q87vpNcQXGWnFjheKY5UlV64Yf2u0D1Me7W4sv71cWM+J5klLETdc4XuI/g==",
+  "generatedAt": "2026-05-02T11:54:07.353Z"
+}
