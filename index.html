@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FBLAB License Admin</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    color: #E2E8F0;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { color: #F1F5F9; margin: 0 0 4px; }
+  .sub { color: #94A3B8; font-size: 13px; margin-bottom: 24px; }
+  .card {
+    background: #1E293B;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .card h2 { margin: 0 0 16px; font-size: 18px; color: #F1F5F9; }
+  label { display: block; font-size: 12px; color: #94A3B8; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    background: #0F172A;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    color: #E2E8F0;
+    font-family: 'Consolas', monospace;
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 12px;
+  }
+  input:focus, textarea:focus { border-color: #38BDF8; }
+  button {
+    padding: 10px 20px;
+    background: #38BDF8;
+    color: #0F172A;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-right: 8px;
+  }
+  button.danger { background: #EF4444; color: white; }
+  button.secondary { background: #334155; color: #E2E8F0; }
+  button:hover:not(:disabled) { opacity: 0.85; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .key-display {
+    background: #0F172A;
+    border: 1px dashed #38BDF8;
+    padding: 16px;
+    text-align: center;
+    border-radius: 6px;
+    font-family: 'Consolas', monospace;
+    font-size: 18px;
+    color: #38BDF8;
+    user-select: all;
+    cursor: copy;
+    margin-top: 12px;
+    letter-spacing: 2px;
+  }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .status {
+    padding: 10px; border-radius: 6px; font-size: 13px;
+    margin-top: 12px; display: none;
+  }
+  .status.error { display: block; background: #7F1D1D; color: #FECACA; }
+  .status.ok { display: block; background: #14532D; color: #BBF7D0; }
+  .status.info { display: block; background: #1E3A8A; color: #BFDBFE; }
+  .pat-bar {
+    background: #1E293B; border: 1px solid #F59E0B;
+    padding: 12px; border-radius: 6px; margin-bottom: 16px;
+    font-size: 12px; color: #FCD34D;
+  }
+  .pat-bar.ok { border-color: #10B981; color: #6EE7B7; }
+  .small { font-size: 11px; color: #64748B; margin-top: -6px; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { padding: 8px; border-bottom: 1px solid #334155; text-align: left; font-family: 'Consolas', monospace; }
+  th { color: #94A3B8; text-transform: uppercase; font-size: 10px; }
+  td.actions button { padding: 4px 10px; font-size: 11px; }
+  .badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+  .badge.active { background: #14532D; color: #BBF7D0; }
+  .badge.revoked { background: #7F1D1D; color: #FECACA; }
+  .badge.expired { background: #78350F; color: #FCD34D; }
+  a { color: #38BDF8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔐 FBLAB License Admin</h1>
+  <div class="sub">Issue and revoke licenses for FBLAB Pro users.</div>
+
+  <div id="patBar" class="pat-bar">
+    ⚠ GitHub PAT not set. <a href="#" onclick="promptPat();return false;">Enter PAT</a> to enable actions. (Stored locally only.)
+  </div>
+
+  <div class="card">
+    <h2>➕ Issue New License</h2>
+    <label>Customer HWID</label>
+    <input type="text" id="hwid" placeholder="paste 32-char HWID from customer" />
+
+    <div class="row2">
+      <div>
+        <label>Validity (days)</label>
+        <input type="number" id="days" value="365" min="1" max="36500" />
+      </div>
+      <div>
+        <label>Customer Note (name / phone)</label>
+        <input type="text" id="note" placeholder="Rahim - 01XXX" />
+      </div>
+    </div>
+
+    <button id="issueBtn" onclick="issueLicense()">Generate & Issue</button>
+    <button class="secondary" onclick="genKeyOnly()">Preview Key Only</button>
+
+    <div id="keyOut" style="display:none;">
+      <label style="margin-top:16px;">Generated License Key (click to copy)</label>
+      <div class="key-display" id="generatedKey" onclick="copyKey()"></div>
+      <div class="small">Send this key to customer via WhatsApp/Telegram. Customer pastes in app.</div>
+    </div>
+
+    <div id="issueStatus" class="status"></div>
+  </div>
+
+  <div class="card">
+    <h2>📜 Active Licenses</h2>
+    <button class="secondary" onclick="loadLicenses()">🔄 Refresh</button>
+    <div id="licList" style="margin-top:12px;">Loading...</div>
+  </div>
+
+  <div class="card">
+    <h2>⚙ Settings</h2>
+    <button class="secondary" onclick="promptPat()">Change GitHub PAT</button>
+    <button class="danger" onclick="clearPat()">Clear Stored PAT</button>
+  </div>
+</div>
+
+<script>
+const OWNER = 'abasdipto';
+const REPO = 'fblab-licenses';
+const WORKFLOW = 'issue-license.yml';
+const RAW_URL = `https://raw.githubusercontent.com/${OWNER}/${REPO}/main/licenses.json`;
+
+const PAT_KEY = 'fblab_admin_pat';
+
+function getPat() { return localStorage.getItem(PAT_KEY) || ''; }
+function setPat(v) { localStorage.setItem(PAT_KEY, v); updatePatBar(); }
+function clearPat() {
+    localStorage.removeItem(PAT_KEY);
+    updatePatBar();
+    alert('PAT cleared.');
+}
+function promptPat() {
+    const cur = getPat();
+    const v = prompt('Enter GitHub PAT (fine-grained, scoped to fblab-licenses repo, with Actions:write + Contents:read):', cur);
+    if (v !== null) setPat(v.trim());
+}
+function updatePatBar() {
+    const bar = document.getElementById('patBar');
+    if (getPat()) {
+        bar.className = 'pat-bar ok';
+        bar.innerHTML = '✓ PAT loaded. <a href="#" onclick="promptPat();return false;">Change</a> · <a href="#" onclick="clearPat();return false;">Clear</a>';
+    } else {
+        bar.className = 'pat-bar';
+        bar.innerHTML = '⚠ GitHub PAT not set. <a href="#" onclick="promptPat();return false;">Enter PAT</a> to enable actions.';
+    }
+}
+
+function genKey() {
+    const alpha = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const groups = [];
+    const buf = new Uint32Array(16);
+    crypto.getRandomValues(buf);
+    let bi = 0;
+    for (let g = 0; g < 4; g++) {
+        let s = '';
+        for (let i = 0; i < 4; i++) s += alpha[buf[bi++] % alpha.length];
+        groups.push(s);
+    }
+    return groups.join('-');
+}
+
+function genKeyOnly() {
+    const k = genKey();
+    document.getElementById('generatedKey').textContent = k;
+    document.getElementById('keyOut').style.display = 'block';
+    showStatus('issueStatus', 'Preview only — not yet committed. Click Generate & Issue to bind to HWID.', 'info');
+}
+
+function copyKey() {
+    const t = document.getElementById('generatedKey').textContent;
+    navigator.clipboard.writeText(t).then(() => {
+        showStatus('issueStatus', '✓ Copied to clipboard.', 'ok');
+    });
+}
+
+function showStatus(elId, msg, type) {
+    const el = document.getElementById(elId);
+    el.className = 'status ' + type;
+    el.textContent = msg;
+}
+
+async function dispatchWorkflow(inputs) {
+    const pat = getPat();
+    if (!pat) throw new Error('No PAT set. Click "Enter PAT" first.');
+    const url = `https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW}/dispatches`;
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Authorization': `token ${pat}`,
+            'Accept': 'application/vnd.github+json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ref: 'main', inputs })
+    });
+    if (res.status !== 204) {
+        const txt = await res.text();
+        throw new Error(`HTTP ${res.status}: ${txt}`);
+    }
+    return true;
+}
+
+async function waitForCommit(expectedKey, timeoutMs = 60000) {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+        try {
+            const r = await fetch(RAW_URL + '?t=' + Date.now());
+            if (r.ok) {
+                const doc = await r.json();
+                const payload = JSON.parse(doc.payload);
+                if (payload.licenses.find(l => l.key === expectedKey)) return true;
+            }
+        } catch {}
+        await new Promise(r => setTimeout(r, 3000));
+    }
+    return false;
+}
+
+async function issueLicense() {
+    const hwid = document.getElementById('hwid').value.trim();
+    const days = document.getElementById('days').value || '365';
+    const note = document.getElementById('note').value.trim();
+    if (!hwid) { showStatus('issueStatus', 'HWID required.', 'error'); return; }
+    if (hwid.length < 16) { showStatus('issueStatus', 'HWID looks too short. Verify with customer.', 'error'); return; }
+
+    const btn = document.getElementById('issueBtn');
+    btn.disabled = true;
+
+    const key = genKey();
+    document.getElementById('generatedKey').textContent = key;
+    document.getElementById('keyOut').style.display = 'block';
+
+    showStatus('issueStatus', 'Triggering workflow...', 'info');
+    try {
+        await dispatchWorkflow({ action: 'add', key, hwid, days: String(days), note });
+    } catch (e) {
+        showStatus('issueStatus', '✗ Trigger failed: ' + e.message, 'error');
+        btn.disabled = false;
+        return;
+    }
+    showStatus('issueStatus', 'Workflow running... waiting for commit (up to 60s)', 'info');
+    const ok = await waitForCommit(key, 90000);
+    if (ok) {
+        showStatus('issueStatus', `✓ License issued! Send key to customer: ${key}`, 'ok');
+        loadLicenses();
+    } else {
+        showStatus('issueStatus', '⚠ Workflow triggered but commit not seen yet. Check Actions tab.', 'info');
+    }
+    btn.disabled = false;
+}
+
+async function revokeLicense(key) {
+    if (!confirm(`Revoke ${key}?`)) return;
+    showStatus('issueStatus', `Revoking ${key}...`, 'info');
+    try {
+        await dispatchWorkflow({ action: 'revoke', key, hwid: '', days: '0', note: 'revoked' });
+        showStatus('issueStatus', `Revoke triggered for ${key}. Check Actions tab.`, 'info');
+        setTimeout(loadLicenses, 8000);
+    } catch (e) {
+        showStatus('issueStatus', '✗ ' + e.message, 'error');
+    }
+}
+
+async function loadLicenses() {
+    const el = document.getElementById('licList');
+    el.innerHTML = 'Loading...';
+    try {
+        const r = await fetch(RAW_URL + '?t=' + Date.now());
+        const doc = await r.json();
+        const payload = JSON.parse(doc.payload);
+        if (payload.licenses.length === 0) { el.innerHTML = '<div class="small">No licenses yet.</div>'; return; }
+        const rows = payload.licenses.map(l => {
+            const exp = l.expires ? new Date(l.expires) : null;
+            const isExpired = exp && exp.getTime() < Date.now();
+            const status = l.revoked ? 'revoked' : (isExpired ? 'expired' : 'active');
+            const badgeText = status.toUpperCase();
+            return `<tr>
+                <td>${l.key}</td>
+                <td>${(l.hwid || '').slice(0,12)}...</td>
+                <td>${l.expires ? new Date(l.expires).toLocaleDateString() : 'never'}</td>
+                <td>${l.note || ''}</td>
+                <td><span class="badge ${status}">${badgeText}</span></td>
+                <td class="actions">${status === 'active' ? `<button class="danger" onclick="revokeLicense('${l.key}')">Revoke</button>` : ''}</td>
+            </tr>`;
+        }).join('');
+        el.innerHTML = `<table>
+            <thead><tr><th>Key</th><th>HWID</th><th>Expires</th><th>Note</th><th>Status</th><th></th></tr></thead>
+            <tbody>${rows}</tbody>
+        </table>`;
+    } catch (e) {
+        el.innerHTML = '<div class="status error">Load failed: ' + e.message + '</div>';
+    }
+}
+
+updatePatBar();
+loadLicenses();
+</script>
+</body>
+</html>

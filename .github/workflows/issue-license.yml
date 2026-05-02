@@ -1,0 +1,65 @@
+name: Issue License
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'add | revoke'
+        required: true
+        default: 'add'
+      key:
+        description: 'License key (e.g. ABCD-EFGH-JKLM-NPQR)'
+        required: true
+      hwid:
+        description: 'Customer HWID (32 hex chars)'
+        required: false
+        default: ''
+      days:
+        description: 'Validity days'
+        required: false
+        default: '365'
+      note:
+        description: 'Note (customer name / contact)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Write private key
+        env:
+          PRIV: ${{ secrets.LICENSE_PRIVATE_KEY }}
+        run: |
+          echo "$PRIV" > private.pem
+          chmod 600 private.pem
+
+      - name: Run sign-license
+        env:
+          ACTION: ${{ inputs.action }}
+          KEY: ${{ inputs.key }}
+          HWID: ${{ inputs.hwid }}
+          DAYS: ${{ inputs.days }}
+          NOTE: ${{ inputs.note }}
+        run: node ci-sign.js
+
+      - name: Cleanup
+        if: always()
+        run: rm -f private.pem
+
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add licenses.json
+          git diff --staged --quiet || git commit -m "${{ inputs.action }}: ${{ inputs.key }} (${{ inputs.note }})"
+          git push
