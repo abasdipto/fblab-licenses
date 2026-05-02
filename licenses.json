@@ -1,5 +1,5 @@
 {
-  "payload": "{\"version\":1,\"licenses\":[{\"key\":\"TEST-1234-ABCD-EFGH\",\"hwid\":\"dummyHwidForBootstrap\",\"expires\":\"2027-05-02T11:54:07.349Z\",\"revoked\":true,\"note\":\"bootstrap\",\"addedAt\":\"2026-05-02T11:54:07.350Z\",\"revokedAt\":\"2026-05-02T12:17:57.985Z\"}]}",
-  "signature": "qbJjKOz+dLULolUESUtzpNeI50zsSejqaH7Q71CxLpjasXTjaGqYhkSSzD0UwWKImuVLW/lruNjjA3Fngq9HEzozTVXXvi3b92uNzjEflvmZFS9uPCIHGeiKrhluZ/5ZXz+JFnXi9CWHWVN3FiHa9TI/WEXoBt26dYtDsTRugjXozn90tB0EvazrTdV9iWSzbZdoXvx1ag6Kz6BKCULrDAMITUvZuKL1Oreuh79yUCYPp008/7S2V7JTVwXUeUP65G/3KKHKp4AqbqhrL/zQdEJu1xUmLPnp6pkrPkMPV67nPInr0W2UOvGepSvITGSrcQlUWNtBhmBGvQYJIB23wQ==",
-  "generatedAt": "2026-05-02T12:17:57.988Z"
+  "payload": "{\"version\":1,\"licenses\":[{\"key\":\"TEST-1234-ABCD-EFGH\",\"hwid\":\"dummyHwidForBootstrap\",\"expires\":\"2027-05-02T11:54:07.349Z\",\"revoked\":true,\"note\":\"bootstrap\",\"addedAt\":\"2026-05-02T11:54:07.350Z\",\"revokedAt\":\"2026-05-02T12:17:57.985Z\"},{\"key\":\"UTAX-3XMB-BF59-FSQ4\",\"hwid\":\"8884dc3ced7ac7e595b831a769a10ad2\",\"expires\":\"2027-04-27T12:36:57.848Z\",\"revoked\":false,\"note\":\"Dipto\",\"addedAt\":\"2026-05-02T12:36:57.848Z\"}]}",
+  "signature": "DfshmmbiLja1RpPPF0enCzA0Rk9E8WTVB02Ilod3lgGTnmYASR2M2pYZyOqlfumxWQTB6JjzO1FOhYuLf2LdQ+l2m2BFVtoreOcDif5W75wZbIGnttdNpXa+e3YLZeqsLtjfSDQVcSRWJGXBzfh82f/qlzfwDXTYrV2AZ6jg3ZsWhut1z1TT03fZYmyowrQaWlv6josvpmR3WV8j5PDtsjYvdEKlNxa8S9Qih8A+msutwijVdIBXozVEnpUeSrzJzK1QOkZYjHISKCqzkv1E0uh8QpxBVcO857umVXETJZBwCehaG/gA3O3yHXM9dbPXkvlw2RcH2bJkna0GE3H3bA==",
+  "generatedAt": "2026-05-02T12:36:57.851Z"
 }
